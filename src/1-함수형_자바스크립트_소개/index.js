@@ -1,3 +1,6 @@
+export * from "./closure";
+import _ from "underscore";
+
 /* 함수형 자바스크립트를 검색하면 나오는 예제 */
 /* addMaker 함수 */
 function addMaker(a) {
@@ -304,3 +307,52 @@ const __every = (list) => beq(-1)(negativeIndex(list));
 console.log(__some([0, null, 2])); // true
 console.log(__some([0, null, false])); // false
 console.log(__every([0, null, 2])); // false
+
+/* 자바스크립트 함수는 위조건을 모두 만족하는 일급함수이다 */
+function f3() {}
+var a1 = typeof f3 === "function" ? f3 : function () {};
+console.log(a1);
+
+/* #1.4.5 고차함수 Part */
+/* 함수를 인자로 받아 대신 실행하는 함수 */
+function calcWith10(value, callback) {
+  return callback(10, value);
+}
+function add(a, b) {
+  return a + b;
+}
+function sub(a, b) {
+  return a - b;
+}
+console.log(calcWith10(10, add)); // 20
+console.log(calcWith10(20, sub)); // -10
+
+/* constant 함수 */
+function constant(value) {
+  return () => value;
+}
+
+const always10 = constant(10);
+console.log(always10()); // 10
+console.log(always10()); // 10
+console.log(always10()); // 10
+
+/* 함수를 대신 실행하는 함수를 리턴하는 함수 */
+function callWith(value1) {
+  return (value2, callback) => callback(value1, value2);
+}
+
+const callWith10 = callWith(10);
+console.log(callWith10(20, add)); // 30
+const callWith5 = callWith(5);
+console.log(callWith5(5, sub)); // 0
+
+/* callWith의 활용 */
+console.log(callWith([1, 2, 3], (v) => v * 10, map));
+
+/* bind */
+function bindingAdd(a, b) {
+  return a + b;
+}
+const bindindAdd = bindingAdd.bind(null, 10);
+console.log(bindindAdd(20)); // 30
