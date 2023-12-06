@@ -74,3 +74,139 @@ var m = {
 ((a) => {
   console.log(false);
 })(1);
+
+/* 유명함수 표현식 */
+var f1 = function () {
+  console.log(f1);
+};
+
+/* 익명함수에서 함수 자신을 참조하는 방법들 */
+var f1 = function () {
+  console.log(f1);
+};
+f1();
+/* 위험 상황 */
+var f2 = f1;
+f1 = " h1 ~~";
+f2();
+
+/* 익명함수에서 함수 자신을 참조하는 방법2 */
+/* ES5 Level 이상의 strict mode에선 calle 불가 ❌ */
+// var f1 = function () {
+//   console.log(arguments.callee);
+// };
+
+// f1();
+
+var f1 = function f() {
+  console.log(f);
+};
+f1();
+
+var f2 = f1;
+f1 = null;
+f2();
+
+/* 유명함수 식에서 함수 이름은 내부 스코프에서만 참조가능하다 */
+var hi = 1;
+var hello = function hi() {
+  console.log(hi);
+};
+hello();
+/* 아래 함수가 콘솔로그에 찍힌다 */
+// function hi() {
+//     console.log(hi);
+// }
+
+/* 깊이를 가진 배열을 펴주는 flatten 함수 */
+function flatten(arr) {
+  return (function f(arr, new_arr) {
+    arr.forEach(function (v) {
+      Array.isArray(v) ? f(v, new_arr) : new_arr.push(v);
+    });
+    return new_arr;
+  })(arr, []);
+}
+console.log(flatten([1, [2], [3, 4]])); // [1,2,3,4]
+console.log(flatten([1, [2], [[3, 4, [5, 6]]]])); // [1,2,3,4,5,6]
+
+/* 함수 실행과 인자 그리고 점 다시 보기 */
+/* 인자, this, arguments 출력 */
+function test(a, b, c) {
+  console.log(a, b, c);
+  console.log(this);
+  console.log(arguments);
+}
+
+test(10);
+
+/* 인자는 일반변수 혹은 객체와 약간 다르게 동작하는 부분 존재 */
+function test2(a, b) {
+  b = 10;
+  console.log(arguments);
+}
+test2(1); // [1]
+test2(1, 2); // [1,10]
+
+/* 객체의 값과 변수의값 */
+var obj1 = {
+  0: 1,
+  1: 2,
+};
+console.log(obj1);
+
+var a = obj1[0];
+var b = obj1[1];
+b = 10;
+
+/* obj1의 값은 바뀌지 않는다 */
+console.log(obj1); // { 0 : 1 , 1: 2}
+console.log(obj1[1]); // 2
+
+/* b만 바뀐다 */
+console.log(b); // 10
+
+/* 반대로 확인해보기 */
+function test3(a, b) {
+  arguments[1] = 10;
+  console.log(b);
+}
+test3(1, 2); // 10
+
+/* 메서드로 만들기 */
+var o1 = {name: "seju"};
+o1.test = test;
+o1.test(3, 2, 1);
+
+var o1_test = o1.test;
+o1_test(5, 6, 8);
+
+/* call/apply 다시보기 */
+function callOrApplyTest(a, b, c, ...rest) {
+  console.log(this);
+  console.log(rest);
+  console.log(a, b, c);
+}
+callOrApplyTest.call(undefined, 1, 2, 3); // window
+callOrApplyTest.call(null, 1, 2, 3); // window
+callOrApplyTest.call(void 0, 1, 2, 3); // window
+
+callOrApplyTest.call(o1, 1, 2, 3); // {name : 'seju'}
+callOrApplyTest.call(1000, 1, 2, 3); // 1000
+
+/* apply */
+callOrApplyTest.apply(o1, {0: "suwan", 1: "seju", 2: "seoul", length: 3});
+
+/* call의 실용적 사례 */
+var slice = Array.prototype.slice;
+function convertArray(data) {
+  return slice.call(data);
+}
+function rest(data, n) {
+  return slice.call(data, n || 1);
+}
+
+var arr1 = convertArray({0: 1, 1: 2, length: 2});
+console.log(arr1); // [1,2]
+arr1.push(3);
+console.log(arr1); // [1,2,3]
