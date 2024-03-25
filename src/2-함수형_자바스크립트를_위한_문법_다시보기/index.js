@@ -98,6 +98,18 @@ f2();
 
 // f1();
 
+/* 호이스팅 활용하기 */
+function add(a, b) {
+  return valid() ? a + b : new Error("에러");
+
+  function valid() {
+    return Number.isInteger(a) && Number.isInteger(b);
+  }
+}
+
+console.log(add(10, 5)); // 15
+console.log(add(10, "b")); // Error("에러")
+
 var f1 = function f() {
   console.log(f);
 };
@@ -210,3 +222,72 @@ var arr1 = convertArray({0: 1, 1: 2, length: 2});
 console.log(arr1); // [1,2]
 arr1.push(3);
 console.log(arr1); // [1,2,3]
+
+/*  함수 실행 괄호의 마법과 비동기 */
+
+var add = function (a, b, callback) {
+  setTimeout(() => {
+    callback(a + b);
+  }, 1000);
+};
+
+var sub = function (a, b, callback) {
+  setTimeout(() => {
+    callback(a - b);
+  }, 1000);
+};
+
+var div = function (a, b, callback) {
+  setTimeout(() => {
+    callback(a / b);
+  }, 1000);
+};
+
+/* **위의 코드는 아래 처럼 중첩 실행할 수 없다** */
+// console.log(div(sub(add(10, 15), 5), 10));
+
+/* 함수를 감싸 없던 공간 만들기 */
+function wrap(func) {
+  return function () {
+    return func.apply(null, arguments);
+  };
+}
+
+/* wrap으로 감싸 리팩토링 */
+var add = wrap(function (a, b, callback) {
+  setTimeout(() => {
+    callback(a + b);
+  }, 1000);
+});
+
+add(5, 10, function (r) {
+  console.log(r); // 15
+});
+
+function _async(func) {
+  return function () {
+    arguments[arguments.length++] = function (result) {
+      _callback(result);
+    };
+    func.apply(null, arguments);
+
+    var _callback;
+    function _async_cb_receiver(callback) {
+      _callback = callback;
+    }
+    return _async_cb_receiver;
+  };
+}
+
+var add = _async(function (a, b, callback) {
+  setTimeout(() => {
+    callback(a + b);
+  }, 1000);
+});
+
+add(
+  20,
+  30
+)(function (r) {
+  console.log(r); // 50
+});
