@@ -11,5 +11,8 @@
   "devDependencies": {
     "underscore": "^1.13.6",
     "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }
